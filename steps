@@ -3,30 +3,31 @@ set -e
 
 add() {
 	[[ $2 ]] || { echo "Usage: steps add <step_name>" >&2; return 1; }
-  local folder_path=`git rev-parse --show-prefix`
-  git tag "steps_${folder_path}_$2"
+  git tag "steps_$2"
 }
 
 remove() {
   [[ $2 ]] || { echo "Usage: steps remove <step_name>" >&2; return 1; }
-  local folder_path=`git rev-parse --show-prefix`
-  git tag -d "steps_${folder_path}_$2"
+  git tag -d "steps_$2"
 }
 
 workon() {
 	[[ $2 ]] || { echo "Usage: steps workon <step_name>" >&2; return 1; }
-  local folder_path=`git rev-parse --show-prefix`
-  git checkout "steps_${folder_path}_$2" > /dev/null
-  local branch_name=steps_wip/${folder_path}_$2 
+  git checkout "steps_$2"
+  local branch_name=steps_wip/$2
 
   git branch -d $branch_name || true # remove old WIP
-  git checkout -b $branch_name 
+  git checkout -b $branch_name
 }
 
 view() {
 	[[ $2 ]] || { echo "Usage: steps view <step_name>" >&2; return 1; }
-  local folder_path=`git rev-parse --show-prefix`
-  git checkout "steps_${folder_path}_$2" > /dev/null
+  git checkout "steps_$2"
+}
+
+diff() {
+	[[ $2 ]] || { echo "Usage: steps diff <step_name>" >&2; return 1; }
+  git diff "steps_$2"
 }
 
 update() {
@@ -41,7 +42,7 @@ update() {
 
 usage() {
   echo "Usage: steps <command>";
-  echo "Commands: add, remove, workon, view, update";
+  echo "Commands: add, remove, workon, update, view, diff";
 }
 
 if [ $# -eq 0 ]
@@ -65,6 +66,10 @@ case $1 in
         ;;
     'view' )
         view "$@"
+        exit 0
+        ;;
+    'diff' )
+        diff "$@"
         exit 0
         ;;
     'update' )
