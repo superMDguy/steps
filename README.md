@@ -42,5 +42,5 @@ Next, you can make as many commits as you want on this branch. When you're done,
 ## Other Commands
 
 * `steps remove <step_name>`
-* `steps diff <step_name>`: shows diff between current head and the given step
+* `steps diff <step_name>` shows diff between current head and the given step
 * `steps list`
