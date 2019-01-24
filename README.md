@@ -1,5 +1,5 @@
-# steps
-Manages steps for livecoded demos using git tags. Currently WIP, so suggestions and contributions are appreciated.
+# `steps`
+Manage steps for demo projects using git tags
 
 ## Installation
 
