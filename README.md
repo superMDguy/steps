@@ -3,7 +3,7 @@ Manages steps for livecoded demos using git tags. Currently WIP, so suggestions 
 
 ## Installation
 
-First, install [git-rebasetags](https://ownyourbits.com/2017/08/14/rebasing-in-git-without-losing-tags/). This is necessary to make sure tags for steps stay in the same place after rebasing, which occurs whenever an old step is updated. After that, you can download the steps shell file and put it somewhere in your path. If you want, you can do this in a one-liner:
+Download the steps shell file and put it somewhere in your path. If you want, you can do this in a one-liner:
 
 ```bash
 sudo wget https://raw.githubusercontent.com/superMDguy/steps/HEAD/steps -O /usr/local/bin/steps && sudo chmod +x /usr/local/bin/steps
@@ -35,6 +35,12 @@ steps add init # or step_1, or anything you want, as long as it doesn't have spa
 steps workon init
 ```
 
-Next, you can make as many commits as you want on this branch. When you're done, run `steps update`. This will update the tag for the step, and run a rebase command that will insert your commits on top of the step you're working on. You'll probably have conflicts. When you do, resolve them, and make sure to run `git rebasetags --continue` instead of `git rebase --continue` to ensure that all the tags stay in the right place.
+Next, you can make as many commits as you want on this branch. When you're done, run `steps update`. This will update the tag for the step, and run a rebase command that will insert your commits on top of the step you're working on. You'll probably have conflicts. When you do, resolve them, and run `git rebase --continue`. Once all your conflicts are resolved, run `steps sync` to resync the tags with the commits (rebasing changes commit hashes, which removes tags).
 
 5. During the demo, you can go to different steps by running `steps view <step_name>`. You can make any changes you want, but you'll be in a detached head so they won't be permanent. So, you can livecode examples, then skip to the next step.
+
+## Other Commands
+
+* `steps remove <step_name>`
+* `steps diff <step_name>`: shows diff between current head and the given step
+* `steps list`
