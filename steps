@@ -2,7 +2,7 @@
 set -e
 
 add() {
-	[[ $2 ]] || { echo "Usage: steps add <step_name>" >&2; return 1; }
+  [[ $2 ]] || { echo "Usage: steps add <step_name>" >&2; return 1; }
   git tag "steps_$2"
 }
 
@@ -12,37 +12,60 @@ remove() {
 }
 
 workon() {
-	[[ $2 ]] || { echo "Usage: steps workon <step_name>" >&2; return 1; }
+  [[ $2 ]] || { echo "Usage: steps workon <step_name>" >&2; return 1; }
   git checkout "steps_$2"
-  local branch_name=steps_wip/$2
+  local branch_name=steps_wip/$2 
 
   git branch -d $branch_name || true # remove old WIP
-  git checkout -b $branch_name
+  git checkout -b $branch_name 
+}
+
+update() {
+  local current_branch=`git rev-parse --abbrev-ref HEAD`
+  local current_tag=steps_`echo $current_branch | cut -c 11-` # cut of steps_wip/ part of branch
+
+  git tag -d $current_tag
+  git tag $current_tag
+
+  git rebase $current_branch master && sync || echo "Run 'steps sync' when the rebase is complete"
 }
 
 view() {
-	[[ $2 ]] || { echo "Usage: steps view <step_name>" >&2; return 1; }
+  [[ $2 ]] || { echo "Usage: steps view <step_name>" >&2; return 1; }
   git checkout "steps_$2"
 }
 
 diff() {
-	[[ $2 ]] || { echo "Usage: steps diff <step_name>" >&2; return 1; }
+  [[ $2 ]] || { echo "Usage: steps diff <step_name>" >&2; return 1; }
   git diff "steps_$2"
 }
 
-update() {
-    local current_branch=`git rev-parse --abbrev-ref HEAD`
-    local current_tag=steps_`echo $current_branch | cut -c 11-` # cut of steps_wip/ part of branch
+list_steps() {
+  git tag | grep ^steps_ | cut -c 7-
+}
 
-    git tag -d $current_tag
-    git tag $current_tag
+retag_step() {
+  local tag_name=steps_$1
 
-    git rebasetags $current_branch master
+  local old_hash=`git rev-list -n 1 "steps_$1"`
+  local commit_msg="`git log -n 1 --pretty=format:%s $old_hash`"
+  local new_hash=`git log --pretty="format:%H" --name-status --grep "$commit_msg" | head -n 1`
+
+  git tag -d "$tag_name"
+  git tag "$tag_name" $new_hash
+}
+
+sync() {
+  echo "Syncing up steps based on commit messages..."
+  for step in `list_steps`
+  do
+    retag_step "$step"
+  done
 }
 
 usage() {
   echo "Usage: steps <command>";
-  echo "Commands: add, remove, workon, update, view, diff";
+  echo "Commands: add, remove, workon, update, view, diff, list, sync";
 }
 
 if [ $# -eq 0 ]
@@ -72,8 +95,16 @@ case $1 in
         diff "$@"
         exit 0
         ;;
+    'list' )
+        list_steps "$@"
+        exit 0
+        ;;
     'update' )
         update "$@"
+        exit 0
+        ;;
+    'sync' )
+        sync "$@"
         exit 0
         ;;
     'help' )
