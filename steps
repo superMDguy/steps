@@ -2,18 +2,18 @@
 set -e
 
 add() {
-  [[ $2 ]] || { echo "Usage: steps add <step_name>" >&2; return 1; }
-  git tag "steps_$2"
+	[[ $2 ]] || { echo "Usage: steps add <step_name>" >&2; return 1; }
+  git tag "step_$2"
 }
 
 remove() {
   [[ $2 ]] || { echo "Usage: steps remove <step_name>" >&2; return 1; }
-  git tag -d "steps_$2"
+  git tag -d "step_$2"
 }
 
 workon() {
-  [[ $2 ]] || { echo "Usage: steps workon <step_name>" >&2; return 1; }
-  git checkout "steps_$2"
+	[[ $2 ]] || { echo "Usage: steps workon <step_name>" >&2; return 1; }
+  git checkout "step_$2"
   local branch_name=steps_wip/$2 
 
   git branch -d $branch_name || true # remove old WIP
@@ -22,7 +22,7 @@ workon() {
 
 update() {
   local current_branch=`git rev-parse --abbrev-ref HEAD`
-  local current_tag=steps_`echo $current_branch | cut -c 11-` # cut of steps_wip/ part of branch
+  local current_tag=step_`echo $current_branch | cut -c 11-` # cut of steps_wip/ part of branch
 
   git tag -d $current_tag
   git tag $current_tag
@@ -31,23 +31,23 @@ update() {
 }
 
 view() {
-  [[ $2 ]] || { echo "Usage: steps view <step_name>" >&2; return 1; }
-  git checkout "steps_$2"
+	[[ $2 ]] || { echo "Usage: steps view <step_name>" >&2; return 1; }
+  git checkout "step_$2"
 }
 
 diff() {
-  [[ $2 ]] || { echo "Usage: steps diff <step_name>" >&2; return 1; }
-  git diff "steps_$2"
+	[[ $2 ]] || { echo "Usage: step diff <step_name>" >&2; return 1; }
+  git diff "step_$2"
 }
 
 list_steps() {
-  git tag | grep ^steps_ | cut -c 7-
+  git tag | grep ^step_ | cut -c 6-
 }
 
 retag_step() {
-  local tag_name=steps_$1
+  local tag_name=step_$1
 
-  local old_hash=`git rev-list -n 1 "steps_$1"`
+  local old_hash=`git rev-list -n 1 "step_$1"`
   local commit_msg="`git log -n 1 --pretty=format:%s $old_hash`"
   local new_hash=`git log --pretty="format:%H" --name-status --grep "$commit_msg" | head -n 1`
 
@@ -63,9 +63,18 @@ sync() {
   done
 }
 
+clean_branches() {
+  echo "Cleaning up WIP branches..."
+  for branch in `git branch | grep ^steps_wip/`
+  do
+    git push --delete origin $branch
+    git branch -D $branch
+  done
+}
+
 usage() {
   echo "Usage: steps <command>";
-  echo "Commands: add, remove, workon, update, view, diff, list, sync";
+  echo "Commands: add, remove, workon, update, view, diff, list, sync, cleanup";
 }
 
 if [ $# -eq 0 ]
@@ -105,6 +114,10 @@ case $1 in
         ;;
     'sync' )
         sync "$@"
+        exit 0
+        ;;
+    'cleanup' )
+        clean_branches "$@"
         exit 0
         ;;
     'help' )
