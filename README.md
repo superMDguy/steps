@@ -1,5 +1,10 @@
 # `steps`
-Manage steps for demo projects using git tags
+There are a few approaches to dealing with projects that need reproducable steps:
+
+* You can put each step in a separate folder or branch. That makes it difficult to make a change to an early step, since you have to manually apply the same change to each other step.
+* You can have each step be a commit. That requires rewriting commits if you want to change an earlier step
+
+A better solution is to have each step be a git tag, which allows you to have multiple commits in between each step. `steps` is a shell script that makes it easier to do this by providing abstractions around git commands.
 
 ## Installation
 
