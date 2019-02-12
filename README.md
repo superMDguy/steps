@@ -9,6 +9,8 @@ Download the steps shell file and put it somewhere in your path. If you want, yo
 sudo wget https://raw.githubusercontent.com/superMDguy/steps/HEAD/steps -O /usr/local/bin/steps && sudo chmod +x /usr/local/bin/steps
 ```
 
+Shell completions for zsh are also provided in the [_steps](https://github.com/superMDguy/steps/blob/HEAD/_steps) file. To install them, place the file somewhere in your `$fpath`.
+
 ## Example usage
 
 1. Get the repository to an intial state, which will be the starting point of your demo. This could be an empty directory, or it could be some boilerplate. Whatever it is, make sure you've initialized a git repository, and added at least one commit.
@@ -39,8 +41,14 @@ Next, you can make as many commits as you want on this branch. When you're done,
 
 5. During the demo, you can go to different steps by running `steps view <step_name>`. You can make any changes you want, but you'll be in a detached head so they won't be permanent. So, you can livecode examples, then skip to the next step.
 
-## Other Commands
+## Full Command List
 
+* `steps add <step_name>`
 * `steps remove <step_name>`
-* `steps diff <step_name>` shows diff between current head and the given step
+* `steps workon <step_name>` create a branch that you can use to change a previous step
+* `steps update` rebase the changes from a `workon` branch, so the changes propagate to all steps
+* `steps sync` resync step tags after a rebase with conflicts from `steps update`
+* `steps view <step_name>` checkout a step to a detached head (readonly)
+* `steps diff <step_name>` view a diff between the current head and the given step
 * `steps list`
+* `steps cleanup` delete old branches created by `steps workon`
