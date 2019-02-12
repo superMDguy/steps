@@ -2,84 +2,84 @@
 set -e
 
 add() {
-	[[ $2 ]] || { echo "Usage: steps add <step_name>" >&2; return 1; }
-  git tag "step_$2"
+    [[ -n $2 ]] || { echo "Usage: steps add <step_name>" >&2; return 1; }
+    git tag "step_$2"
 }
 
 remove() {
-  [[ $2 ]] || { echo "Usage: steps remove <step_name>" >&2; return 1; }
-  git tag -d "step_$2"
+    [[ -n $2 ]] || { echo "Usage: steps remove <step_name>" >&2; return 1; }
+    git tag -d "step_$2"
 }
 
 workon() {
-	[[ $2 ]] || { echo "Usage: steps workon <step_name>" >&2; return 1; }
-  git checkout "step_$2"
-  local branch_name=steps_wip/$2 
+    [[ -n $2 ]] || { echo "Usage: steps workon <step_name>" >&2; return 1; }
+    git checkout "step_$2"
+    local branch_name=steps_wip/$2
 
-  git branch -d $branch_name || true # remove old WIP
-  git checkout -b $branch_name 
+    git branch -d "$branch_name" || true # remove old WIP
+    git checkout -b "$branch_name"
 }
 
 update() {
-  local current_branch=`git rev-parse --abbrev-ref HEAD`
-  local current_tag=step_`echo $current_branch | cut -c 11-` # cut of steps_wip/ part of branch
+    local current_branch=$(git rev-parse --abbrev-ref HEAD)
+    local current_tag=step_$(echo "$current_branch" | cut -c 11-) # cut of steps_wip/ part of branch
 
-  git tag -d $current_tag
-  git tag $current_tag
+    git tag -d "$current_tag"
+    git tag "$current_tag"
 
-  git rebase $current_branch master && sync || echo "Run 'steps sync' when the rebase is complete"
+    git rebase "$current_branch" master && sync || echo "Run 'steps sync' when the rebase is complete"
 }
 
 view() {
-	[[ $2 ]] || { echo "Usage: steps view <step_name>" >&2; return 1; }
-  git checkout "step_$2"
+    [[ -n $2 ]] || { echo "Usage: steps view <step_name>" >&2; return 1; }
+    git checkout "step_$2"
 }
 
 diff() {
-	[[ $2 ]] || { echo "Usage: step diff <step_name>" >&2; return 1; }
-  git diff "step_$2"
+    [[ -n $2 ]] || { echo "Usage: step diff <step_name>" >&2; return 1; }
+    git diff "step_$2"
 }
 
 list_steps() {
-  # TODO: fix ugliness here
-  git log --no-walk --tags --pretty="%d" | sed -E 's/.*tag: step_(.*), .*)/\1/' | sed -E 's/.*tag: step_(.*)\)/\1/' | sed -e 's/, .*//'
+    # TODO: fix ugliness here
+    git log --no-walk --tags --pretty="%d" | sed -E 's/.*tag: step_(.*), .*)/\1/' | sed -E 's/.*tag: step_(.*)\)/\1/' | sed -e 's/, .*//'
 }
 
 retag_step() {
-  local tag_name=step_$1
+    local tag_name=step_$1
 
-  local old_hash=`git rev-list -n 1 "step_$1"`
-  local commit_msg="`git log -n 1 --pretty=format:%s $old_hash`"
-  local new_hash=`git log --pretty="format:%H" --name-status --grep "$commit_msg" | head -n 1`
+    local old_hash=$(git rev-list -n 1 "step_$1")
+    local commit_msg="$(git log -n 1 --pretty=format:%s "$old_hash")"
+    local new_hash=$(git log --pretty="format:%H" --name-status --grep "$commit_msg" | head -n 1)
 
-  git tag -d "$tag_name"
-  git tag "$tag_name" $new_hash
+    git tag -d "$tag_name"
+    git tag "$tag_name" "$new_hash"
 }
 
 sync() {
-  echo "Syncing up steps based on commit messages..."
-  for step in `list_steps`
-  do
-    retag_step "$step"
-  done
+    echo "Syncing up steps based on commit messages..."
+    for step in $(list_steps)
+    do
+        retag_step "$step"
+    done
 }
 
 clean_branches() {
-  echo "Cleaning up WIP branches..."
-  for branch in `git branch | grep ^steps_wip/`
-  do
-    git push --delete origin $branch
-    git branch -D $branch
-  done
+    echo "Cleaning up WIP branches..."
+    for branch in $(git branch | grep ^steps_wip/)
+    do
+        git push --delete origin "$branch"
+        git branch -D "$branch"
+    done
 }
 
 usage() {
-  echo "Usage: steps <command>";
-  echo "Commands: add, remove, workon, update, view, diff, list, sync, cleanup";
+    echo "Usage: steps <command>";
+    echo "Commands: add, remove, workon, update, view, diff, list, sync, cleanup";
 }
 
 if [ $# -eq 0 ]
-  then
+then
     usage
     exit 1
 fi
