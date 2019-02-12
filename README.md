@@ -9,6 +9,8 @@ Download the steps shell file and put it somewhere in your path. If you want, yo
 sudo wget https://raw.githubusercontent.com/superMDguy/steps/HEAD/steps -O /usr/local/bin/steps && sudo chmod +x /usr/local/bin/steps
 ```
 
+Shell completions for zsh are also provided in the [_steps](https://github.com/superMDguy/steps/blob/HEAD/_steps) file. To install them, place the file somewhere in your `$fpath`.
+
 ## Example usage
 
 1. Get the repository to an intial state, which will be the starting point of your demo. This could be an empty directory, or it could be some boilerplate. Whatever it is, make sure you've initialized a git repository, and added at least one commit.
