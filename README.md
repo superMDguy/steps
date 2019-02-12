@@ -31,7 +31,8 @@ git commit -am "initial commit"
 2. Add the first step. This will add a tag to the most recent commit with the name of your step.
 
 ```
-steps add init # or step_1, or anything you want, as long as it doesn't have spaces (even quoted ones).
+steps add init # or "boilerplate", or anything you want, as long as it doesn't have spaces (even quoted ones).
+# A tag is added called step_init
 ```
 
 3. Add the rest of your steps. You can have as many commits in between steps as you want, just make sure you commit before you run `steps add`.
