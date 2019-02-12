@@ -1,0 +1,30 @@
+#compdef steps
+
+local curcontext="$curcontext" state
+
+local -a subcmds
+subcmds=('add:add new step' \
+         'remove:remove step' \
+         'workon:change an existing step' \
+         'update:update the currently worked on step' \
+         'view:checkout a step (readonly)' \
+         'diff:view diff between HEAD and step' \
+         'list:list steps' \
+         'sync:fix tags after a rebase' \
+         'cleanup:remove unused WIP branches from workon'
+)
+
+ _arguments -C '1: :->cmds' '*: :->args'
+ 
+ case $state in
+    cmds)
+      _describe -t commands 'steps <command>' subcmds
+    ;;
+   args)
+     case $words[2] in (remove|workon|view|diff)
+       _values 'version' $(steps list)
+      ;;
+    esac
+  ;;
+esac
+

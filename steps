@@ -41,7 +41,8 @@ diff() {
 }
 
 list_steps() {
-  git tag | grep ^step_ | cut -c 6-
+  # TODO: fix ugliness here
+  git log --no-walk --tags --pretty="%d" | sed -E 's/.*tag: step_(.*), .*)/\1/' | sed -E 's/.*tag: step_(.*)\)/\1/' | sed -e 's/, .*//'
 }
 
 retag_step() {
