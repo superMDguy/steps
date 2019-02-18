@@ -1,5 +1,5 @@
 # `steps`
-There are a few approaches to dealing with projects that need reproducable steps:
+There are a few approaches to dealing with projects that need reproducible steps:
 
 * You can put each step in a separate folder or branch. That makes it difficult to make a change to earlier steps, since you have to manually apply the same change to each other step.
 * You can have each step be a commit. That requires rewriting commits if you want to change earlier steps.
@@ -58,3 +58,6 @@ Next, you can make as many commits as you want on this branch. When you're done,
 * `steps diff <step_name>` view a diff between the current head and the given step
 * `steps list`
 * `steps cleanup` delete old branches created by `steps workon`
+
+## Contributing
+I'm currently both actively using and actively developing `steps`, since I'm using it to create a video course on Vuex. So, if you find any issues, or if you just have a question, feel free to [create an issue](https://github.com/superMDguy/steps/issues/new), and I'll get back to you as soon as I can.
