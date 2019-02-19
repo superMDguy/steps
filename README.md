@@ -1,5 +1,5 @@
 # `steps`
-There are a few approaches to dealing with projects that need reproducable steps:
+There are a few approaches to dealing with projects that need reproducible steps:
 
 * You can put each step in a separate folder or branch. That makes it difficult to make a change to earlier steps, since you have to manually apply the same change to each other step.
 * You can have each step be a commit. That requires rewriting commits if you want to change earlier steps.
@@ -31,7 +31,8 @@ git commit -am "initial commit"
 2. Add the first step. This will add a tag to the most recent commit with the name of your step.
 
 ```
-steps add init # or step_1, or anything you want, as long as it doesn't have spaces (even quoted ones).
+steps add init # or "boilerplate", or anything you want, as long as it doesn't have spaces (even quoted ones).
+# A tag is added called step_init
 ```
 
 3. Add the rest of your steps. You can have as many commits in between steps as you want, just make sure you commit before you run `steps add`.
@@ -57,3 +58,6 @@ Next, you can make as many commits as you want on this branch. When you're done,
 * `steps diff <step_name>` view a diff between the current head and the given step
 * `steps list`
 * `steps cleanup` delete old branches created by `steps workon`
+
+## Contributing
+I'm currently both actively using and actively developing `steps`, since I'm using it to create a video course on Vuex. So, if you find any issues, or if you just have a question, feel free to [create an issue](https://github.com/superMDguy/steps/issues/new), and I'll get back to you as soon as I can.
