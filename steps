@@ -36,13 +36,19 @@ view() {
 }
 
 diff() {
-    [[ -n $2 ]] || { echo "Usage: step diff <step_name>" >&2; return 1; }
-    git diff "step_$2"
+    if [ $# -eq 2 ]; then 
+      git diff "step_$2"
+    elif [ $# -eq 3 ]; then
+      git diff "step_$2" "step_$3"
+    else  
+      echo "Usage: step diff <step_name> [<other_step_name>]" >&2;
+      return 1;
+    fi
 }
 
 list_steps() {
     # TODO: fix ugliness here
-    git log --no-walk --tags --pretty="%d" | sed -E 's/.*tag: step_(.*), .*)/\1/' | sed -E 's/.*tag: step_(.*)\)/\1/' | sed -e 's/, .*//'
+    git log --pretty="%d" | awk 'NF' | sed -E 's/.*tag: step_(.*), .*)/\1/' | sed -E 's/.*tag: step_(.*)\)/\1/' | sed -e 's/, .*//'
 }
 
 retag_step() {
