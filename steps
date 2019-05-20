@@ -9,14 +9,18 @@ add() {
 remove() {
     [[ -n $2 ]] || { echo "Usage: steps remove <step_name>" >&2; return 1; }
     git tag -d "step_$2"
+    git push -d origin "step_$2"
 }
 
 workon() {
     [[ -n $2 ]] || { echo "Usage: steps workon <step_name>" >&2; return 1; }
-    git checkout "step_$2"
     local branch_name=steps_wip/$2
 
-    git branch -d "$branch_name" || true # remove old WIP
+    if [ -n "$(git show-ref refs/heads/"$branch_name")" ]
+    then
+        git branch -d "$branch_name"
+    fi
+    git checkout "step_$2"
     git checkout -b "$branch_name"
 }
 
@@ -35,6 +39,12 @@ view() {
     git checkout "step_$2"
 }
 
+develop() {
+  [[ -n $3 ]] || { echo "Usage: steps develop <from_step> <to_step>" >&2; return 1; }
+  git checkout "step_$2"
+  git reset --soft "step_$3"
+}
+
 diff() {
     if [ $# -eq 2 ]; then 
       git diff "step_$2"
@@ -47,34 +57,31 @@ diff() {
 }
 
 list_steps() {
-    # TODO: fix ugliness here
-    git log --pretty="%d" | awk 'NF' | sed -E 's/.*tag: step_(.*), .*)/\1/' | sed -E 's/.*tag: step_(.*)\)/\1/' | sed -e 's/, .*//'
+    git log --pretty="%d" | grep 'tag: step_' | sed -E 's/.*step_([^,]*)(, .*)?\)/\1/'
 }
 
 retag_step() {
-    local tag_name=step_$1
-
-    local old_hash=$(git rev-list -n 1 "step_$1")
+    local old_hash=$(git rev-list -n 1 "$1")
     local commit_msg="$(git log -n 1 --pretty=format:%s "$old_hash")"
     local new_hash=$(git log --pretty="format:%H" --name-status --grep "$commit_msg" | head -n 1)
 
-    git tag -d "$tag_name"
-    git tag "$tag_name" "$new_hash"
+    git tag -d "$1"
+    git tag "$1" "$new_hash"
 }
 
 sync() {
     echo "Syncing up steps based on commit messages..."
-    for step in $(list_steps)
+    for tag in $(git tag | grep ^step_) # not using list_steps, because that only incudes tags currently used
     do
-        retag_step "$step"
+        retag_step "$tag"
     done
 }
 
 clean_branches() {
     echo "Cleaning up WIP branches..."
-    for branch in $(git branch | grep ^steps_wip/)
+    for branch in $(git branch | grep steps_wip/)
     do
-        git push --delete origin "$branch"
+        git push -d origin "$branch"
         git branch -D "$branch"
     done
 }
@@ -105,6 +112,10 @@ case $1 in
         ;;
     'view' )
         view "$@"
+        exit 0
+        ;;
+    'develop' )
+        develop "$@"
         exit 0
         ;;
     'diff' )
